@@ -18,8 +18,7 @@ def _validate_path(name, path):
 
 def register_all_tables(spark):
     """
-    Registers all Iceberg tables in AWS Glue Data Catalog
-    using centralized path configuration.
+    Registers all Iceberg tables in AWS Glue Data Catalog.
     Safe to run multiple times.
     """
 
@@ -34,10 +33,10 @@ def register_all_tables(spark):
     _validate_path("STEWARD_LOG_PATH", STEWARD_LOG_PATH)
 
     # -----------------------
-    # Create database (Glue Catalog)
+    # Create database
     # -----------------------
     spark.sql(f"""
-        CREATE DATABASE IF NOT EXISTS glue_catalog.{DATABASE}
+        CREATE DATABASE IF NOT EXISTS {DATABASE}
     """)
     print("[OK]1 Database")
 
@@ -45,7 +44,7 @@ def register_all_tables(spark):
     # Bronze
     # -----------------------
     spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS glue_catalog.{DATABASE}.bronze_yellow_taxi
+        CREATE TABLE IF NOT EXISTS {DATABASE}.bronze_yellow_taxi
         USING ICEBERG
         LOCATION '{BRONZE_PATH}'
     """)
@@ -55,14 +54,14 @@ def register_all_tables(spark):
     # Silver
     # -----------------------
     spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS glue_catalog.{DATABASE}.silver_yellow_taxi_pass
+        CREATE TABLE IF NOT EXISTS {DATABASE}.silver_yellow_taxi_pass
         USING ICEBERG
         LOCATION '{SILVER_PASS_PATH}'
     """)
     print("[OK]3 Silver PASS")
 
     spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS glue_catalog.{DATABASE}.silver_yellow_taxi_fail
+        CREATE TABLE IF NOT EXISTS {DATABASE}.silver_yellow_taxi_fail
         USING ICEBERG
         LOCATION '{SILVER_FAIL_PATH}'
     """)
@@ -72,7 +71,7 @@ def register_all_tables(spark):
     # MDM
     # -----------------------
     spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS glue_catalog.{DATABASE}.location_master
+        CREATE TABLE IF NOT EXISTS {DATABASE}.location_master
         USING ICEBERG
         LOCATION '{MDM_PATH}'
     """)
@@ -82,38 +81,38 @@ def register_all_tables(spark):
     # Gold – Quality Metrics
     # -----------------------
     spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS glue_catalog.{DATABASE}.quality_completeness
+        CREATE TABLE IF NOT EXISTS {DATABASE}.quality_completeness
         USING ICEBERG
         LOCATION '{GOLD_PATH}/completeness'
     """)
     print("[OK]6 Gold Completeness")
 
     spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS glue_catalog.{DATABASE}.quality_accuracy
+        CREATE TABLE IF NOT EXISTS {DATABASE}.quality_accuracy
         USING ICEBERG
         LOCATION '{GOLD_PATH}/accuracy'
     """)
     print("[OK]7 Gold Accuracy")
 
     spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS glue_catalog.{DATABASE}.quality_timeliness
+        CREATE TABLE IF NOT EXISTS {DATABASE}.quality_timeliness
         USING ICEBERG
         LOCATION '{GOLD_PATH}/timeliness'
     """)
     print("[OK]8 Gold Timeliness")
 
     spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS glue_catalog.{DATABASE}.quality_consistency
+        CREATE TABLE IF NOT EXISTS {DATABASE}.quality_consistency
         USING ICEBERG
         LOCATION '{GOLD_PATH}/consistency'
     """)
     print("[OK]9 Gold Consistency")
 
     # -----------------------
-    # Governance / Steward Logs
+    # Steward Logs
     # -----------------------
     spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS glue_catalog.{DATABASE}.steward_activity_log
+        CREATE TABLE IF NOT EXISTS {DATABASE}.steward_activity_log
         USING ICEBERG
         LOCATION '{STEWARD_LOG_PATH}'
     """)
