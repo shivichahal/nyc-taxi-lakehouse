@@ -1,6 +1,8 @@
 import sys
 from pyspark.sql import SparkSession
 from awsglue.utils import getResolvedOptions
+from pyspark.sql.functions import col, lit
+from config.paths import RAW_PATH
 
 # ======================================================
 # Read Glue Job Arguments
@@ -48,7 +50,7 @@ from catalog.register_tables import register_all_tables
 # ======================================================
 def main():
     print("===== BRONZE LAYER STARTED =====")
-    ingest_bronze(spark)
+    ingest_bronze(spark, RAW_PATH)
 
     print("===== SILVER LAYER STARTED =====")
     build_silver(spark)
