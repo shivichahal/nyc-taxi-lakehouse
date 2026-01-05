@@ -10,13 +10,23 @@ from config.paths import (
 DATABASE = "nyc_taxi_lake"
 
 
+def _validate_path(name, path):
+    if not path or path.strip() == "":
+        raise ValueError(f"{name} is EMPTY or INVALID: '{path}'")
+    print(f"[OK] {name} = {path}")
+
 def register_all_tables(spark):
     """
     Registers all Delta tables in AWS Glue Data Catalog
     using centralized path configuration.
     Safe to run multiple times.
     """
-
+    _validate_path("BRONZE_PATH", BRONZE_PATH)
+    _validate_path("SILVER_PASS_PATH", SILVER_PASS_PATH)
+    _validate_path("SILVER_FAIL_PATH", SILVER_FAIL_PATH)
+    _validate_path("MDM_PATH", MDM_PATH)
+    _validate_path("GOLD_PATH", GOLD_PATH)
+    _validate_path("STEWARD_LOG_PATH", STEWARD_LOG_PATH)
     # --------------------------------------------------
     # Create Database
     # --------------------------------------------------
