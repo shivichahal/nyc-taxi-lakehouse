@@ -20,6 +20,8 @@ from gold.quality_metrics import (
 # Paths
 from config.paths import RAW_PATH
 
+from catalog.register_tables import register_all_tables
+
 
 def main():
     # Create Spark session (Glue provides this automatically)
@@ -47,7 +49,10 @@ def main():
     build_quality_consistency(spark)
 
     print("=== NYC Taxi Lakehouse Glue Job Completed Successfully ===")
-
+   
+   # Register tables in Glue Catalog
+    register_all_tables(spark)
+    print("All tables registered in AWS Glue Data Catalog.")
 
 if __name__ == "__main__":
     main()
