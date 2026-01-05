@@ -5,7 +5,7 @@ resource "aws_glue_job" "etl" {
   command {
     name            = "glueetl"
     python_version  = "3"
-    script_location = "s3://${var.project}-bucket/src/main_glue_job.py"
+    script_location = "s3://nyc-taxi-lakehouse-shivani-bucket/src/main_glue_job.py"
   }
 
   glue_version = "4.0"
