@@ -1,81 +1,105 @@
+import sys
 from pyspark.sql import SparkSession
+# 1. IMPORT FIX: Added 'col' and 'lit' to avoid NameErrors
+from pyspark.sql.functions import col, lit
 
 # Bronze
 from bronze.ingest_yellow_taxi import ingest_bronze
-
 # Silver
 from silver.silver_transform import build_silver
-
 # MDM
 from mdm.location_master_job import build_location_master
-
-# Gold – all quality dimensions from ONE file
+# Gold
 from gold.quality_metrics import (
     build_quality_completeness,
     build_quality_accuracy,
     build_quality_timeliness,
     build_quality_consistency
 )
-
 # Paths
 from config.paths import RAW_PATH
-
 from catalog.register_tables import register_all_tables
 
-
 def main():
-    # Create Spark session (Glue provides this automatically)
-    spark = SparkSession.builder.getOrCreate()
+    # Glue handles session creation, but we ensure Delta configs are enabled
+    spark = SparkSession.builder \
+        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+        .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+        .getOrCreate()
 
     print("=== NYC Taxi Lakehouse Glue Job Started ===")
 
-    #  Bronze – ingest raw data
+    # 1. Bronze – Ingest raw data
     print("Running Bronze ingestion...")
     ingest_bronze(spark, RAW_PATH)
 
-    # Silver – apply DQ rules and split PASS / FAIL
+    # 2. Silver – Apply DQ rules and split PASS / FAIL
     print("Running Silver transformations...")
     build_silver(spark)
 
-    # MDM – build Location Master + stewardship logging
+    # 3. MDM – Build Location Master + stewardship logging
     print("Running MDM Location Master job...")
     build_location_master(spark)
 
-    #  Gold – governance & quality metrics
+    # 4. Gold – Governance & Quality metrics
     print("Running Gold quality metrics...")
     build_quality_completeness(spark)
     build_quality_accuracy(spark)
     build_quality_timeliness(spark)
     build_quality_consistency(spark)
 
-    print("=== NYC Taxi Lakehouse Glue Job Completed Successfully ===")
+    print("=== NYC Taxi Lakehouse Core ETL Completed Successfully ===")
    
-   # Register tables in Glue Catalog
+    # 5. Register tables in Glue Catalog
     register_all_tables(spark)
     print("All tables registered in AWS Glue Data Catalog.")
 
-    print("===== DEBUG: Glue Catalog Visibility =====")
+    # ========================================================
+    # 6. FIX: IMPROVED DEBUG BLOCK
+    # ========================================================
+    print("===== DEBUG: Glue Catalog Visibility & Integrity Check =====")
 
-    # 1️⃣ List databases Spark can see
+    db_name = "nyc_taxi_lake"
+
+    # Refresh the catalog metadata to ensure Spark "sees" the tables we just registered
+    try:
+        spark.catalog.clearCache()
+        print(f"Refreshing Catalog metadata for {db_name}...")
+    except Exception as e:
+        print(f"Metadata refresh warning: {str(e)}")
+
+    # 1️⃣ List databases
     print("Databases visible to Spark:")
     spark.sql("SHOW DATABASES").show(truncate=False)
 
-    # 2️⃣ List tables in your target database
-    print("Tables in database nyc_taxi_lake:")
-    spark.sql("SHOW TABLES IN nyc_taxi_lake").show(truncate=False)
+    # 2️⃣ Verify and List tables
+    try:
+        print(f"Tables in database {db_name}:")
+        tables_df = spark.sql(f"SHOW TABLES IN {db_name}")
+        tables_df.show(truncate=False)
 
-    # 3️⃣ Describe each table with location
-    tables = spark.sql("SHOW TABLES IN nyc_taxi_lake").collect()
+        # 3️⃣ Logic Fix: Correctly extracting S3 Path from DESCRIBE output
+        table_rows = tables_df.collect()
+        for row in table_rows:
+            table_name = row["tableName"]
+            print(f"\n--- Detailed Metadata for: {db_name}.{table_name} ---")
+            
+            # Use FORMATTED as it's more reliable for Location data than EXTENDED
+            metadata_df = spark.sql(f"DESCRIBE FORMATTED {db_name}.{table_name}")
+            
+            # Extract Location string
+            location_row = metadata_df.filter(col("col_name") == "Location").select("data_type").collect()
+            
+            if location_row:
+                s3_path = location_row[0]["data_type"]
+                print(f"✅ Registered S3 Path: {s3_path}")
+            else:
+                print("⚠️ Location metadata row not found in DESCRIBE output.")
 
-    for row in tables:
-        table_name = row["tableName"]
-        print(f"Describing table: nyc_taxi_lake.{table_name}")
-        spark.sql(f"DESCRIBE EXTENDED nyc_taxi_lake.{table_name}") \
-             .filter(col("col_name") == "Location") \
-             .show(truncate=False)
+    except Exception as e:
+        print(f"❌ Error during Catalog Debug: {str(e)}")
 
     print("===== END DEBUG =====")
-
 
 if __name__ == "__main__":
     main()
