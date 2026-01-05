@@ -54,5 +54,28 @@ def main():
     register_all_tables(spark)
     print("All tables registered in AWS Glue Data Catalog.")
 
+    print("===== DEBUG: Glue Catalog Visibility =====")
+
+    # 1️⃣ List databases Spark can see
+    print("Databases visible to Spark:")
+    spark.sql("SHOW DATABASES").show(truncate=False)
+
+    # 2️⃣ List tables in your target database
+    print("Tables in database nyc_taxi_lake:")
+    spark.sql("SHOW TABLES IN nyc_taxi_lake").show(truncate=False)
+
+    # 3️⃣ Describe each table with location
+    tables = spark.sql("SHOW TABLES IN nyc_taxi_lake").collect()
+
+    for row in tables:
+        table_name = row["tableName"]
+        print(f"Describing table: nyc_taxi_lake.{table_name}")
+        spark.sql(f"DESCRIBE EXTENDED nyc_taxi_lake.{table_name}") \
+             .filter(col("col_name") == "Location") \
+             .show(truncate=False)
+
+    print("===== END DEBUG =====")
+
+
 if __name__ == "__main__":
     main()
