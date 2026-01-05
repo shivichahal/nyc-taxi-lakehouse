@@ -3,6 +3,15 @@ from pyspark.sql import SparkSession
 # 1. IMPORT FIX: Added 'col' and 'lit' to avoid NameErrors
 from pyspark.sql.functions import col, lit
 
+spark = SparkSession.builder.getOrCreate()
+
+print("=== NYC Taxi Lakehouse Glue Job Started ===")
+
+#  Delta sanity check
+spark.sql("SET spark.sql.extensions").show(truncate=False)
+spark.sql("SET spark.sql.catalog.spark_catalog").show(truncate=False)
+
+
 # Bronze
 from bronze.ingest_yellow_taxi import ingest_bronze
 # Silver
@@ -22,10 +31,7 @@ from catalog.register_tables import register_all_tables
 
 def main():
     # Glue handles session creation, but we ensure Delta configs are enabled
-    spark = SparkSession.builder \
-        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
-        .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
-        .getOrCreate()
+   
 
     print("=== NYC Taxi Lakehouse Glue Job Started ===")
 
