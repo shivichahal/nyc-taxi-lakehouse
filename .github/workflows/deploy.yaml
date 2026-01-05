@@ -19,6 +19,9 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::464899062573:role/github-actions-nyc-taxi
           aws-region: us-east-2
+    #VERIFY IDENTITY (DEBUG STEP)
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
 
       - run: zip -r glue_code.zip src/
       - run: aws s3 cp glue_code.zip s3://nyc-taxi-lakehouse-bucket/src/glue_code.zip
