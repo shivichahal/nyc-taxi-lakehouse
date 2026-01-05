@@ -24,7 +24,7 @@ jobs:
         run: aws sts get-caller-identity
 
       - run: zip -r glue_code.zip src/
-      - run: aws s3 cp glue_code.zip s3://nyc-taxi-lakehouse-bucket/src/glue_code.zip
+      - run: aws s3 cp glue_code.zip s3://nyc-taxi-lakehouse-shivani-bucket/src/glue_code.zip
 
       - run: terraform init
         working-directory: infra
