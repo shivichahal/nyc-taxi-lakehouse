@@ -1,0 +1,30 @@
+name: Upload Glue Code to S3
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/**"
+
+jobs:
+  upload-glue-code:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::464899062573:role/github-actions-nyc-taxi
+          aws-region: us-east-2
+
+      - name: Upload Glue scripts to S3
+        run: |
+          aws s3 sync src/ s3://nyc-taxi-lakehouse-shivani-bucket/src/
