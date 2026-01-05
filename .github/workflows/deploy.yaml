@@ -25,6 +25,11 @@ jobs:
 
       - run: zip -r glue_code.zip src/
       - run: aws s3 cp glue_code.zip s3://nyc-taxi-lakehouse-shivani-bucket/src/glue_code.zip
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
 
       - run: terraform init
         working-directory: infra
