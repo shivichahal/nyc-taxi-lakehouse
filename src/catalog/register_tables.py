@@ -33,7 +33,7 @@ def register_all_tables(spark):
     spark.sql(f"""
         CREATE DATABASE IF NOT EXISTS {DATABASE}
     """)
-
+    print("[OK]1")
     # --------------------------------------------------
     # Bronze
     # --------------------------------------------------
@@ -42,7 +42,7 @@ def register_all_tables(spark):
         USING DELTA
         LOCATION '{BRONZE_PATH}'
     """)
-
+    print("[OK]2")
     # --------------------------------------------------
     # Silver
     # --------------------------------------------------
@@ -51,13 +51,13 @@ def register_all_tables(spark):
         USING DELTA
         LOCATION '{SILVER_PASS_PATH}'
     """)
-
+    print("[OK]3")
     spark.sql(f"""
         CREATE TABLE IF NOT EXISTS {DATABASE}.silver_yellow_taxi_fail
         USING DELTA
         LOCATION '{SILVER_FAIL_PATH}'
     """)
-
+    print("[OK]4")
     # --------------------------------------------------
     #MDM
     # --------------------------------------------------
@@ -66,7 +66,7 @@ def register_all_tables(spark):
         USING DELTA
         LOCATION '{MDM_PATH}'
     """)
-
+    print("[OK]5")
     # --------------------------------------------------
     # Gold – Quality Metrics
     # --------------------------------------------------
@@ -75,25 +75,25 @@ def register_all_tables(spark):
         USING DELTA
         LOCATION '{GOLD_PATH}/completeness'
     """)
-
+    print("[OK]6")
     spark.sql(f"""
         CREATE TABLE IF NOT EXISTS {DATABASE}.quality_accuracy
         USING DELTA
         LOCATION '{GOLD_PATH}/accuracy'
     """)
-
+    print("[OK]7")
     spark.sql(f"""
         CREATE TABLE IF NOT EXISTS {DATABASE}.quality_timeliness
         USING DELTA
         LOCATION '{GOLD_PATH}/timeliness'
     """)
-
+    print("[OK]8")
     spark.sql(f"""
         CREATE TABLE IF NOT EXISTS {DATABASE}.quality_consistency
         USING DELTA
         LOCATION '{GOLD_PATH}/consistency'
     """)
-
+    print("[OK]9")
     # --------------------------------------------------
     # Governance / Steward Logs
     # --------------------------------------------------
@@ -102,3 +102,4 @@ def register_all_tables(spark):
         USING DELTA
         LOCATION '{STEWARD_LOG_PATH}'
     """)
+    print("[OK]10")
