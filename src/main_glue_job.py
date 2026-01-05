@@ -9,11 +9,13 @@ from silver.silver_transform import build_silver
 # MDM
 from mdm.location_master_job import build_location_master
 
-# Gold – Quality Dimensions
-from gold.quality_completeness import build_quality_completeness
-from gold.quality_accuracy import build_quality_accuracy
-from gold.quality_timeliness import build_quality_timeliness
-from gold.quality_consistency import build_quality_consistency
+# Gold – all quality dimensions from ONE file
+from gold.quality_metrics import (
+    build_quality_completeness,
+    build_quality_accuracy,
+    build_quality_timeliness,
+    build_quality_consistency
+)
 
 # Paths
 from config.paths import RAW_PATH
