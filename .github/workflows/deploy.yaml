@@ -36,6 +36,4 @@ jobs:
 
       - run: terraform apply -auto-approve
         working-directory: infra
-      - name: Upload Glue code to S3
-        run: |
-         aws s3 sync src/ s3://nyc-taxi-lakehouse-shivani-bucket/src/
+     

@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "src/**"
+      - ".github/workflows/s3_upload.yml"
 
 jobs:
   upload-glue-code:
