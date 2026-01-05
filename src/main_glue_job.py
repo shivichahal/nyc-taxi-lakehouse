@@ -27,6 +27,7 @@ spark = (
     .getOrCreate()
 )
 
+
 spark.sparkContext.setLogLevel("INFO")
 
 print("Spark session initialized with Delta Lake support")
@@ -50,7 +51,7 @@ from catalog.register_tables import register_all_tables
 # ======================================================
 def main():
     print("===== BRONZE LAYER STARTED =====")
-    ingest_bronze(spark, RAW_PATH)
+    ingest_bronze(spark)
 
     print("===== SILVER LAYER STARTED =====")
     build_silver(spark)
