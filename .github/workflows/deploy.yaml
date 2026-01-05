@@ -1,0 +1,30 @@
+name: Deploy NYC Taxi Lakehouse
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam:::role/github-actions-nyc-taxi
+          aws-region: us-east-2
+
+      - run: zip -r glue_code.zip src/
+      - run: aws s3 cp glue_code.zip s3://nyc-taxi-lakehouse-bucket/src/glue_code.zip
+
+      - run: terraform init
+        working-directory: infra
+
+      - run: terraform apply -auto-approve
+        working-directory: infra
