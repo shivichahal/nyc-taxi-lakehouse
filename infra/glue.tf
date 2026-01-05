@@ -13,7 +13,7 @@ resource "aws_glue_job" "etl" {
   default_arguments = {
     "--datalake-formats" = "delta"
     "--enable-continuous-cloudwatch-log" = "true"
-    "--extra-py-files" = "s3://nyc-taxi-lakehouse-shivani-bucket/src/dependencies.zip"
+    "--extra-py-files" = "s3://nyc-taxi-lakehouse-shivani-bucket/src/glue_code.zip"
   }
 
   number_of_workers = 5
