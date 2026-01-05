@@ -1,13 +1,51 @@
 from pyspark.sql import SparkSession
-##from config.paths import RAW_PATH
+
+# Bronze
 from bronze.ingest_yellow_taxi import ingest_bronze
+
+# Silver
 from silver.silver_transform import build_silver
+
+# MDM
 from mdm.location_master_job import build_location_master
-from gold.quality_metrics import build_quality_metrics
 
-spark = SparkSession.builder.getOrCreate()
+# Gold – Quality Dimensions
+from gold.quality_completeness import build_quality_completeness
+from gold.quality_accuracy import build_quality_accuracy
+from gold.quality_timeliness import build_quality_timeliness
+from gold.quality_consistency import build_quality_consistency
 
-ingest_bronze(spark, 's3://nyc-taxi-lakehouse-shivani/raw/yellow_tripdata_2025-08.parquet')
-build_silver(spark)
-build_location_master(spark)
-build_quality_metrics(spark)
+# Paths
+from config.paths import RAW_PATH
+
+
+def main():
+    # Create Spark session (Glue provides this automatically)
+    spark = SparkSession.builder.getOrCreate()
+
+    print("=== NYC Taxi Lakehouse Glue Job Started ===")
+
+    #  Bronze – ingest raw data
+    print("Running Bronze ingestion...")
+    ingest_bronze(spark, RAW_PATH)
+
+    # Silver – apply DQ rules and split PASS / FAIL
+    print("Running Silver transformations...")
+    build_silver(spark)
+
+    # MDM – build Location Master + stewardship logging
+    print("Running MDM Location Master job...")
+    build_location_master(spark)
+
+    #  Gold – governance & quality metrics
+    print("Running Gold quality metrics...")
+    build_quality_completeness(spark)
+    build_quality_accuracy(spark)
+    build_quality_timeliness(spark)
+    build_quality_consistency(spark)
+
+    print("=== NYC Taxi Lakehouse Glue Job Completed Successfully ===")
+
+
+if __name__ == "__main__":
+    main()
