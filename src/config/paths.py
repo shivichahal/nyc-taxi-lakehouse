@@ -1,4 +1,4 @@
-RAW_PATH = "s3://nyc-taxi-lakehouse-shivani/raw/yellow_tripdata_2025-08.parquet"
+RAW_PATH = "s3://nyc-taxi-lakehouse-shivani-bucket/raw/yellow_tripdata_2025-08.parquet"
 BRONZE_PATH = "s3://nyc-taxi-lakehouse-shivani-bucket/src/bronze/yellow_taxi"
 SILVER_PASS_PATH = "s3://nyc-taxi-lakehouse-shivani-bucket/src/silver/pass/yellow_taxi"
 SILVER_FAIL_PATH = "s3://nyc-taxi-lakehouse-shivani-bucket/src/silver/fail/yellow_taxi"
