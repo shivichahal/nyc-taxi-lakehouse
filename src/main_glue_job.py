@@ -3,6 +3,9 @@ from pyspark.sql import SparkSession
 from awsglue.utils import getResolvedOptions
 from pyspark.sql.functions import col, lit
 from config.paths import RAW_PATH
+from awsglue.context import GlueContext
+from pyspark.context import SparkContext
+
 
 # ======================================================
 # Read Glue Job Arguments
@@ -28,7 +31,8 @@ spark = (
 )
 
 
-spark.sparkContext.setLogLevel("INFO")
+sc = SparkContext()
+glueContext = GlueContext(sc)
 
 print("Spark session initialized with Delta Lake support")
 
@@ -50,9 +54,12 @@ from catalog.register_tables import register_all_tables
 # Execute Pipeline
 # ======================================================
 def main():
+
+    
     print("===== BRONZE LAYER STARTED =====")
     ingest_bronze(spark)
 
+    
     print("===== SILVER LAYER STARTED =====")
     build_silver(spark)
 

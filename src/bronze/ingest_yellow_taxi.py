@@ -14,7 +14,6 @@ def ingest_bronze(spark):
           .format("delta")
           .mode("append")
           .save(BRONZE_PATH)
-          .saveAsTable("nyc_taxi_lake","broozec_checking table ")
     )
 
     print("Bronze Delta write completed successfully.")
