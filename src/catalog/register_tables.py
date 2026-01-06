@@ -7,7 +7,7 @@ from config.paths import (
     STEWARD_LOG_PATH
 )
 
-DATABASE = "nyc_taxi_lake"
+DATABASE = "nyctaxidbfinal"
 
 
 def _validate_path(name, path):
@@ -29,7 +29,7 @@ def register_all_tables(spark):
 
     # Create database
     spark.sql(f"CREATE DATABASE IF NOT EXISTS {DATABASE}")
-
+    print(f"[OK] {DATABASE} part done")
     # Bronze
     spark.sql(f"""
         CREATE TABLE IF NOT EXISTS {DATABASE}.bronze_yellow_taxi
