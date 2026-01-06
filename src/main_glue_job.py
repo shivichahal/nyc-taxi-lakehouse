@@ -31,8 +31,6 @@ spark = (
 )
 
 
-sc = SparkContext()
-glueContext = GlueContext(sc)
 
 print("Spark session initialized with Delta Lake support")
 
